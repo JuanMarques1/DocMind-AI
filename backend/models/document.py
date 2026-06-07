@@ -1,10 +1,15 @@
 """Modelo de dados do documento processado."""
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database.session import Base
+
+
+def _agora() -> datetime:
+    """Horário atual em UTC (timezone-aware)."""
+    return datetime.now(UTC)
 
 
 class Document(Base):
@@ -26,4 +31,4 @@ class Document(Base):
     status: Mapped[str] = mapped_column(String(20), default="processing")
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_agora)
