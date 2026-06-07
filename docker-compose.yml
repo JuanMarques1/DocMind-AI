@@ -1,0 +1,23 @@
+services:
+  backend:
+    build: ./backend
+    container_name: docmind-backend
+    environment:
+      # Defina OPENAI_API_KEY no .env da raiz. Sem ela, usa o analisador mock.
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - DATABASE_URL=sqlite:////app/db/docmind.db
+    volumes:
+      # Persistem uploads e o banco SQLite entre execuções.
+      - ./data/uploads:/app/uploads
+      - ./data/db:/app/db
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    container_name: docmind-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
