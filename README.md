@@ -29,7 +29,6 @@ Envie um documento, receba **tipo**, **resumo** e **dados estruturados** — ext
 - [Estrutura do projeto](#-estrutura-do-projeto)
 - [Testes](#-testes)
 - [Variáveis de ambiente](#-variáveis-de-ambiente)
-- [Decisões de projeto](#-decisões-de-projeto)
 - [Licença](#-licença)
 
 ---
