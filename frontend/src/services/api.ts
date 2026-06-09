@@ -1,7 +1,12 @@
 import axios from "axios";
 
-// Cliente Axios apontando para a API do backend (proxy /api no dev, nginx em prod).
-const api = axios.create({ baseURL: "/api" });
+// Em produção (Vercel) defina VITE_API_URL com a URL do backend no Render
+// (ex.: https://docmind-api.onrender.com). Em desenvolvimento, fica vazio e o
+// Vite faz proxy de /api para o backend local.
+const API_ROOT = import.meta.env.VITE_API_URL ?? "";
+
+// Cliente Axios apontando para a API do backend.
+const api = axios.create({ baseURL: `${API_ROOT}/api` });
 
 export interface AnalysisResult {
   tipo: string;
@@ -58,7 +63,8 @@ export async function getStats(): Promise<Stats> {
 }
 
 // URLs diretas para download do JSON e visualização do arquivo original.
-export const downloadUrl = (id: number) => `/api/documents/${id}/download`;
-export const fileUrl = (id: number) => `/api/documents/${id}/file`;
+export const downloadUrl = (id: number) =>
+  `${API_ROOT}/api/documents/${id}/download`;
+export const fileUrl = (id: number) => `${API_ROOT}/api/documents/${id}/file`;
 
 export default api;

@@ -29,6 +29,7 @@ Envie um documento, receba **tipo**, **resumo** e **dados estruturados** — ext
 - [Estrutura do projeto](#-estrutura-do-projeto)
 - [Testes](#-testes)
 - [Variáveis de ambiente](#-variáveis-de-ambiente)
+- [Deploy](#-deploy)
 - [Decisões de projeto](#-decisões-de-projeto)
 - [Licença](#-licença)
 
@@ -228,11 +229,54 @@ SQLite em memória.
 
 ## ⚙️ Variáveis de ambiente
 
+**Backend**
+
 | Variável | Padrão | Descrição |
 |----------|--------|-----------|
 | `OPENAI_API_KEY` | _(vazio)_ | Chave da OpenAI. Vazio → usa o analisador mock local |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Modelo usado na análise |
-| `DATABASE_URL` | `sqlite:///./docmind.db` | URL do banco de dados |
+| `DATABASE_URL` | `sqlite:///./docmind.db` | URL do banco (SQLite local · Postgres em produção) |
+| `FRONTEND_ORIGIN` | _(vazio)_ | Domínio do frontend liberado no CORS. Vazio → libera tudo |
+
+**Frontend**
+
+| Variável | Padrão | Descrição |
+|----------|--------|-----------|
+| `VITE_API_URL` | _(vazio)_ | URL do backend em produção. Vazio → usa o proxy do Vite |
+
+---
+
+## ☁️ Deploy
+
+Arquitetura de produção: **frontend na Vercel** + **backend (Docker) e Postgres no Render**.
+
+```
+   Vercel (React/CDN)  ──HTTPS──►  Render (FastAPI + Docker)  ──►  Render Postgres
+```
+
+### 1. Backend + banco no Render
+
+O arquivo [`render.yaml`](render.yaml) já descreve o serviço e o banco como *blueprint*.
+
+1. No [dashboard do Render](https://dashboard.render.com): **New → Blueprint** e selecione este repositório.
+2. O Render cria o **Postgres** (`docmind-db`) e o serviço **`docmind-api`** (Docker), injetando o `DATABASE_URL` automaticamente.
+3. Em **Environment**, defina:
+   - `OPENAI_API_KEY` — sua chave (ou deixe vazio para usar o mock).
+   - `FRONTEND_ORIGIN` — a URL da Vercel (passo 2), ex.: `https://docmind.vercel.app`.
+4. Anote a URL pública do backend, ex.: `https://docmind-api.onrender.com`.
+
+### 2. Frontend na Vercel
+
+1. Em [vercel.com](https://vercel.com): **Add New → Project** e importe este repositório.
+2. **Root Directory:** `frontend` (a Vercel detecta o Vite automaticamente).
+3. Em **Environment Variables**, defina `VITE_API_URL` com a URL do backend no Render.
+4. Faça o deploy e, de volta ao Render, atualize `FRONTEND_ORIGIN` com o domínio gerado.
+
+> **Notas do plano gratuito**
+> - O serviço do Render hiberna após inatividade → a primeira requisição pode levar ~50s (cold start).
+> - O **histórico persiste** no Postgres, mas os **arquivos enviados** ficam em disco efêmero
+>   e são removidos a cada redeploy (suficiente para um demo). Para persistir os arquivos,
+>   use um disco do Render ou um storage de objetos (ex.: S3).
 
 ---
 

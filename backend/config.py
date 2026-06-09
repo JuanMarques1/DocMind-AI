@@ -11,8 +11,12 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
 
-    # Banco de dados
+    # Banco de dados (SQLite local; Postgres em produção via DATABASE_URL)
     database_url: str = "sqlite:///./docmind.db"
+
+    # Origem do frontend permitida no CORS (ex.: https://docmind.vercel.app).
+    # Vazio → libera todas as origens (conveniente para desenvolvimento).
+    frontend_origin: str | None = None
 
     # Uploads
     upload_dir: str = "uploads"
