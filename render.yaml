@@ -10,9 +10,10 @@ services:
   - type: web
     name: docmind-api
     runtime: docker
-    rootDir: backend
-    dockerfilePath: ./Dockerfile
     plan: free
+    # Caminhos relativos à RAIZ do repositório (padrão de monorepo no Render).
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
     healthCheckPath: /api/health
     envVars:
       # Connection string do Postgres acima (injetada automaticamente).
