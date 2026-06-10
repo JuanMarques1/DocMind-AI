@@ -4,6 +4,7 @@ import { Icon } from "./Icon";
 import { IconSprite } from "./Icon";
 import ThemeToggle from "./ThemeToggle";
 import AccentPicker from "./AccentPicker";
+import { useAuth } from "../context/AuthContext";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: "grid", end: true },
@@ -23,7 +24,13 @@ function crumbFor(pathname: string): string {
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [busca, setBusca] = useState("");
+
+  function sair() {
+    logout();
+    navigate("/login");
+  }
 
   function submitBusca(e: React.FormEvent) {
     e.preventDefault();
@@ -68,12 +75,22 @@ export default function Layout() {
 
         <div className="bottom">
           <div className="user">
-            <span className="av">DM</span>
+            <span className="av">
+              {(user?.email?.[0] ?? "U").toUpperCase()}
+            </span>
             <span className="who">
-              <b>DocMind AI</b>
-              <small>Analista de dados</small>
+              <b>{user?.email ?? "Usuário"}</b>
+              <small>Conta DocMind</small>
             </span>
           </div>
+          <button
+            className="btn btn-secondary btn-sm"
+            style={{ marginTop: "var(--space-3)", width: "100%" }}
+            onClick={sair}
+          >
+            <Icon name="arrow-left" size={14} />
+            Sair
+          </button>
         </div>
       </aside>
 
