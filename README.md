@@ -74,6 +74,7 @@ em JSON estruturado.
 
 | | Recurso | Descrição |
 |---|---------|-----------|
+| 🔐 | **Contas de usuário** | Cadastro/login com JWT; cada usuário vê só os próprios documentos |
 | 📤 | **Upload** | Drag-and-drop de PDF, PNG, JPG e JPEG (até 10 MB) |
 | 📝 | **Extração de texto** | PyMuPDF para PDFs · Tesseract OCR para imagens |
 | 🤖 | **Análise com IA** | Tipo, resumo e dados estruturados via LLM (com fallback local) |
@@ -175,6 +176,9 @@ Acesse http://localhost:5173 (o Vite faz proxy de `/api` para o backend).
 
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
+| `POST` | `/api/auth/register` | Cria conta (email + senha) e retorna um token JWT |
+| `POST` | `/api/auth/login` | Autentica e retorna um token JWT |
+| `GET` | `/api/auth/me` | Retorna o usuário autenticado |
 | `POST` | `/api/documents` | Envia e processa um documento |
 | `GET` | `/api/documents` | Lista o histórico |
 | `GET` | `/api/documents/{id}` | Detalhes e análise completa |
@@ -182,6 +186,10 @@ Acesse http://localhost:5173 (o Vite faz proxy de `/api` para o backend).
 | `GET` | `/api/documents/{id}/file` | Serve o arquivo original |
 | `GET` | `/api/stats` | Estatísticas do dashboard |
 | `GET` | `/api/health` | Health check |
+
+As rotas de **documentos** e **estatísticas** exigem autenticação: envie o header
+`Authorization: Bearer <token>` obtido no login/cadastro. Cada usuário acessa
+somente os próprios documentos.
 
 Documentação interativa (Swagger UI) disponível em `/docs`.
 
@@ -233,6 +241,7 @@ SQLite em memória.
 |----------|--------|-----------|
 | `OPENAI_API_KEY` | _(vazio)_ | Chave da OpenAI. Vazio → usa o analisador mock local |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Modelo usado na análise |
+| `SECRET_KEY` | _(dev inseguro)_ | Chave para assinar os tokens JWT. **Defina em produção** (32+ chars aleatórios) |
 | `DATABASE_URL` | `sqlite:///./docmind.db` | URL do banco (SQLite local · Postgres em produção) |
 | `FRONTEND_ORIGIN` | _(vazio)_ | Domínio do frontend liberado no CORS. Vazio → libera tudo |
 
