@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
 
     # Autenticação (JWT). Em produção, defina SECRET_KEY com um valor aleatório.
-    secret_key: str = "dev-insecure-secret-change-me"
+    secret_key: str = "dev-insecure-secret-change-me-please-32chars-min"
     access_token_expire_days: int = 7
 
     # Banco de dados (SQLite local; Postgres em produção via DATABASE_URL)
