@@ -37,3 +37,14 @@ def client(tmp_path, monkeypatch):
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def auth_client(client):
+    """Cliente já autenticado: registra um usuário e fixa o header Bearer."""
+    token = client.post(
+        "/api/auth/register",
+        json={"email": "user@test.com", "password": "senha123"},
+    ).json()["access_token"]
+    client.headers.update({"Authorization": f"Bearer {token}"})
+    return client
