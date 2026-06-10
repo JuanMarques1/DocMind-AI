@@ -91,6 +91,9 @@ h1.display {
 
 /* ------------------------------------------------------------------ Tokens */
 .grid { display: grid; gap: var(--space-4); }
+/* Evita que itens com conteúdo largo (ex.: JSON) estourem a coluna e gerem
+   scroll horizontal na página — grid items têm min-width:auto por padrão. */
+.grid > * { min-width: 0; }
 .cols-2 { grid-template-columns: repeat(2, 1fr); }
 .cols-3 { grid-template-columns: repeat(3, 1fr); }
 .cols-4 { grid-template-columns: repeat(4, 1fr); }
@@ -459,10 +462,12 @@ h1.display {
 
 /* JSON viewer */
 .json-view {
-  margin: 0; max-height: 28rem; overflow: auto;
+  margin: 0; max-height: 28rem; overflow-y: auto; overflow-x: hidden;
   background: var(--surface-inset); border: 1px solid var(--border);
   border-radius: var(--radius-md); padding: var(--space-4);
   font-family: var(--font-mono); font-size: var(--text-xs); line-height: 1.6; color: var(--fg-secondary);
+  /* Quebra linhas longas em vez de rolar horizontalmente. */
+  white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word;
 }
 
 /* file preview */
