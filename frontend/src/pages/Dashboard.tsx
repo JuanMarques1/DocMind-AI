@@ -1,99 +1,149 @@
 import { Link } from "react-router-dom";
 import StatCard from "../components/StatCard";
 import Loader from "../components/Loader";
+import { Icon } from "../components/Icon";
 import { useStats } from "../hooks/useStats";
+import { fileKind, relativeTime } from "../lib/format";
 
-/** Página inicial com estatísticas agregadas. */
+// Paleta para as barras de distribuição (1ª usa o accent do tema).
+const BAR_COLORS = [
+  "var(--accent)",
+  "#7c5cff",
+  "#2f6bff",
+  "#10a371",
+  "#e0a83c",
+  "var(--fg-faint)",
+];
+
+/** Página inicial com métricas, distribuição por tipo e últimos uploads. */
 export default function Dashboard() {
   const { stats, loading, error } = useStats();
 
   if (loading) return <Loader label="Carregando estatísticas…" />;
   if (error || !stats)
-    return <p className="text-red-500">{error ?? "Erro ao carregar."}</p>;
+    return <p className="alert">{error ?? "Erro ao carregar."}</p>;
+
+  const maxTipo = Math.max(1, ...stats.por_tipo.map((t) => t.total));
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Dashboard
-        </h2>
-        <p className="text-slate-500 dark:text-slate-400">
-          Visão geral dos documentos processados.
-        </p>
+    <>
+      <div className="page-head">
+        <div>
+          <h3>Dashboard</h3>
+          <p>Visão geral dos documentos processados.</p>
+        </div>
+        <Link to="/upload" className="btn btn-secondary btn-sm">
+          <Icon name="plus" />
+          Novo documento
+        </Link>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard label="Documentos processados" value={stats.total} icon="📄" />
+      <div className="grid cols-3">
+        <StatCard
+          label="Documentos processados"
+          value={stats.total}
+          icon="file"
+        />
         <StatCard
           label="Tipos identificados"
           value={stats.por_tipo.length}
-          icon="🏷️"
+          icon="grid"
         />
         <StatCard
           label="Últimos uploads"
           value={stats.ultimos.length}
-          icon="🕒"
+          icon="history"
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-          <h3 className="mb-4 font-semibold text-slate-800 dark:text-slate-100">
-            Tipos de documentos
-          </h3>
-          {stats.por_tipo.length === 0 ? (
-            <p className="text-sm text-slate-500">Nenhum dado ainda.</p>
-          ) : (
-            <ul className="space-y-2">
-              {stats.por_tipo.map((t) => (
-                <li
-                  key={t.tipo}
-                  className="flex items-center justify-between text-sm"
-                >
-                  <span className="text-slate-700 dark:text-slate-300">
-                    {t.tipo}
-                  </span>
-                  <span className="rounded-full bg-brand-50 px-2.5 py-0.5 font-medium text-brand-700 dark:bg-brand-600/20 dark:text-brand-400">
-                    {t.total}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+      <div className="grid cols-2 mt-6" style={{ alignItems: "start" }}>
+        {/* Distribuição por tipo */}
+        <div className="card">
+          <div className="card-head">
+            <h4>Tipos de documentos</h4>
+            <span className="muted" style={{ fontSize: "var(--text-xs)" }}>
+              distribuição
+            </span>
+          </div>
+          <div className="card-body">
+            {stats.por_tipo.length === 0 ? (
+              <p className="muted" style={{ fontSize: "var(--text-sm)" }}>
+                Nenhum dado ainda.
+              </p>
+            ) : (
+              <div className="dist">
+                {stats.por_tipo.map((t, i) => {
+                  const color = BAR_COLORS[i % BAR_COLORS.length];
+                  return (
+                    <div className="row" key={t.tipo}>
+                      <span className="nm">
+                        <span className="sq" style={{ background: color }} />
+                        {t.tipo}
+                      </span>
+                      <div className="track">
+                        <div
+                          className="fill"
+                          style={{
+                            width: `${Math.round((t.total / maxTipo) * 100)}%`,
+                            background: color,
+                          }}
+                        />
+                      </div>
+                      <span className="ct">{t.total}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-          <h3 className="mb-4 font-semibold text-slate-800 dark:text-slate-100">
-            Últimos uploads
-          </h3>
-          {stats.ultimos.length === 0 ? (
-            <p className="text-sm text-slate-500">
-              Nenhum documento ainda.{" "}
-              <Link to="/upload" className="text-brand-600 hover:underline">
-                Enviar o primeiro →
-              </Link>
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {stats.ultimos.map((doc) => (
-                <li key={doc.id}>
-                  <Link
-                    to={`/documents/${doc.id}`}
-                    className="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-800"
-                  >
-                    <span className="truncate text-slate-700 dark:text-slate-300">
-                      {doc.filename}
-                    </span>
-                    <span className="ml-2 shrink-0 text-slate-400">
-                      {doc.doc_type ?? "—"}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+        {/* Últimos uploads */}
+        <div className="card">
+          <div className="card-head">
+            <h4>Últimos uploads</h4>
+            <Link to="/history" className="link">
+              Ver tudo
+              <Icon name="chev-r" size={13} />
+            </Link>
+          </div>
+          <div className="card-body flush">
+            {stats.ultimos.length === 0 ? (
+              <div className="empty">
+                <div className="ei">
+                  <Icon name="upload" />
+                </div>
+                <h4>Nenhum documento ainda</h4>
+                <p>Envie o primeiro para vê-lo aqui.</p>
+                <Link to="/upload" className="btn btn-primary btn-sm">
+                  <Icon name="plus" />
+                  Enviar documento
+                </Link>
+              </div>
+            ) : (
+              <div className="reclist">
+                {stats.ultimos.map((doc) => {
+                  const kind = fileKind(doc.mime_type);
+                  return (
+                    <Link key={doc.id} to={`/documents/${doc.id}`}>
+                      <span className={`filetag ${kind}`}>
+                        {kind.toUpperCase()}
+                      </span>
+                      <span className="nm">
+                        <b>{doc.filename}</b>
+                        <small>{doc.doc_type ?? "Processando"}</small>
+                      </span>
+                      <span className="when">
+                        {relativeTime(doc.created_at)}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

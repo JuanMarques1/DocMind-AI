@@ -1,22 +1,22 @@
+import { Icon, type IconName } from "./Icon";
+
 interface StatCardProps {
   label: string;
   value: string | number;
-  icon?: string;
+  icon: IconName;
 }
 
-/** Cartão de métrica para o dashboard. */
+/** Cartão de métrica: rótulo, ícone e valor em fonte mono (estilo Vercel). */
 export default function StatCard({ label, value, icon }: StatCardProps) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-          {label}
-        </p>
-        {icon && <span className="text-2xl">{icon}</span>}
+    <div className="stat">
+      <div className="top">
+        <span className="label">{label}</span>
+        <span className="ico">
+          <Icon name={icon} />
+        </span>
       </div>
-      <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
-        {value}
-      </p>
+      <span className="value">{value}</span>
     </div>
   );
 }

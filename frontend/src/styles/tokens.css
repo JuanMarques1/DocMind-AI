@@ -1,0 +1,198 @@
+/* ===========================================================================
+   DocMind AI — Design System Tokens
+   Direção: Vercel-minimal · preto/branco clean · accent índigo (#635bff)
+   Light & dark via [data-theme]. Geist + Geist Mono.
+   =========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;450;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ---- Type ------------------------------------------------------------ */
+  --font-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Type scale (1.20 minor third, 16px base) */
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 15px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-3xl: 36px;
+  --text-4xl: 48px;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+
+  --tracking-tight: -0.02em;
+  --tracking-snug: -0.01em;
+  --tracking-wide: 0.04em;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* ---- Spacing (4px base) --------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ---- Radius ---------------------------------------------------------- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 999px;
+
+  /* ---- Accent (theme-independent base) -------------------------------- */
+  --accent: #635bff;
+  --accent-hover: #524bdb;
+  --accent-press: #4640c2;
+}
+
+/* ===========================  LIGHT  ====================================== */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #ffffff;
+  --bg-subtle: #fafafa;
+  --bg-canvas: #f6f6f7;          /* page behind app shell */
+
+  --surface: #ffffff;
+  --surface-2: #fafafa;
+  --surface-hover: #f5f5f5;
+  --surface-inset: #f4f4f5;
+
+  --border: #ececec;
+  --border-strong: #d9d9d9;
+  --border-focus: var(--accent);
+
+  --fg: #0a0a0a;
+  --fg-secondary: #404040;
+  --fg-muted: #6b6b6b;
+  --fg-subtle: #9b9b9b;
+  --fg-faint: #c2c2c2;
+
+  --primary: #0a0a0a;            /* solid action (Vercel black) */
+  --primary-hover: #1f1f1f;
+  --primary-fg: #ffffff;
+
+  --accent-soft: #f0efff;
+  --accent-border: #dcd9ff;
+  --accent-fg: #4b45cc;
+
+  --success: #1f9d57;
+  --success-soft: #e7f6ee;
+  --success-fg: #1a7d47;
+  --warning: #b7791f;
+  --warning-soft: #fbf3e2;
+  --warning-fg: #946215;
+  --danger: #d93636;
+  --danger-soft: #fdeced;
+  --danger-fg: #b42424;
+
+  --shadow-xs: 0 1px 2px rgba(15, 15, 15, 0.05);
+  --shadow-sm: 0 1px 2px rgba(15, 15, 15, 0.06), 0 1px 3px rgba(15, 15, 15, 0.04);
+  --shadow-md: 0 2px 4px rgba(15, 15, 15, 0.05), 0 4px 12px rgba(15, 15, 15, 0.06);
+  --shadow-lg: 0 8px 30px rgba(15, 15, 15, 0.10);
+  --ring: 0 0 0 2px var(--bg), 0 0 0 4px rgba(99, 91, 255, 0.45);
+}
+
+/* ===========================  DARK  ======================================= */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #000000;
+  --bg-subtle: #0a0a0a;
+  --bg-canvas: #000000;
+
+  --surface: #0b0b0c;
+  --surface-2: #111113;
+  --surface-hover: #161618;
+  --surface-inset: #161618;
+
+  --border: #1f1f22;
+  --border-strong: #2c2c30;
+  --border-focus: var(--accent);
+
+  --fg: #ededed;
+  --fg-secondary: #c7c7c7;
+  --fg-muted: #9a9a9a;
+  --fg-subtle: #6e6e6e;
+  --fg-faint: #4a4a4a;
+
+  --primary: #ffffff;
+  --primary-hover: #e6e6e6;
+  --primary-fg: #0a0a0a;
+
+  --accent: #7d76ff;
+  --accent-hover: #908aff;
+  --accent-soft: #15141f;
+  --accent-border: #2a2740;
+  --accent-fg: #b4afff;
+
+  --success: #3ec27a;
+  --success-soft: #0f1d15;
+  --success-fg: #5cd996;
+  --warning: #e0a83c;
+  --warning-soft: #1f1810;
+  --warning-fg: #f0bd5b;
+  --danger: #f06363;
+  --danger-soft: #211213;
+  --danger-fg: #ff8585;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.6);
+  --ring: 0 0 0 2px var(--bg), 0 0 0 4px rgba(125, 118, 255, 0.5);
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--fg);
+  background: var(--bg-canvas);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv11", "ss01";
+}
+
+::selection { background: rgba(99, 91, 255, 0.22); }
+
+.mono { font-family: var(--font-mono); font-feature-settings: "tnum" 1; }
+
+/* Interactive transitions only on hover-able controls. */
+.btn, .nav-item, .icon-btn, .input, .input-group, .tbl tbody tr,
+.reclist a, .pg, .dropzone, .stat, .swatch, .seg button {
+  transition: background-color .15s ease, border-color .15s ease,
+              color .15s ease, box-shadow .15s ease, transform .1s ease;
+}
+/* Kill all transitions during a theme switch to avoid the Chromium
+   "stuck custom-property" repaint bug; restored on the next frame. */
+.theme-switching, .theme-switching * {
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

@@ -1,57 +1,114 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Icon } from "./Icon";
+import { IconSprite } from "./Icon";
 import ThemeToggle from "./ThemeToggle";
+import AccentPicker from "./AccentPicker";
 
-const LINKS = [
-  { to: "/", label: "Dashboard", icon: "📊", end: true },
-  { to: "/upload", label: "Upload", icon: "⬆️", end: false },
-  { to: "/history", label: "Histórico", icon: "🗂️", end: false },
-];
+const NAV = [
+  { to: "/", label: "Dashboard", icon: "grid", end: true },
+  { to: "/upload", label: "Upload", icon: "upload", end: false },
+  { to: "/history", label: "Histórico", icon: "history", end: false },
+] as const;
 
-/** Estrutura geral da aplicação: sidebar + conteúdo. */
+/** Rótulo do breadcrumb a partir da rota atual. */
+function crumbFor(pathname: string): string {
+  if (pathname.startsWith("/upload")) return "Enviar documento";
+  if (pathname.startsWith("/history")) return "Histórico";
+  if (pathname.startsWith("/documents")) return "Documento";
+  return "Dashboard";
+}
+
+/** App shell: sidebar refinada + topbar + conteúdo roteado. */
 export default function Layout() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [busca, setBusca] = useState("");
+
+  function submitBusca(e: React.FormEvent) {
+    e.preventDefault();
+    navigate("/history", { state: { q: busca } });
+  }
+
   return (
-    <div className="flex min-h-screen">
-      <aside className="hidden w-64 flex-col border-r border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 md:flex">
-        <div className="mb-8 flex items-center gap-2">
-          <span className="text-2xl">🧠</span>
-          <span className="text-xl font-bold text-slate-900 dark:text-white">
-            DocMind <span className="text-brand-600">AI</span>
+    <div className="app-root">
+      <IconSprite />
+
+      {/* Sidebar */}
+      <aside className="side">
+        <div className="org">
+          <span className="logo">
+            <Icon name="logo" />
           </span>
+          <span className="name">
+            DocMind
+            <small>Inteligência documental</small>
+          </span>
+          <Icon name="chev-d" size={14} className="chev" />
         </div>
-        <nav className="flex flex-col gap-1">
-          {LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.end}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  isActive
-                    ? "bg-brand-600 text-white"
-                    : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-                }`
-              }
-            >
-              <span>{link.icon}</span>
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
+
+        <div>
+          <div className="group-label">Workspace</div>
+          <nav>
+            {NAV.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  `nav-item${isActive ? " active" : ""}`
+                }
+              >
+                <Icon name={item.icon} />
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+
+        <div className="bottom">
+          <div className="user">
+            <span className="av">DM</span>
+            <span className="who">
+              <b>DocMind AI</b>
+              <small>Analista de dados</small>
+            </span>
+          </div>
+        </div>
       </aside>
 
-      <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white/80 px-6 py-4 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
-          <h1 className="text-lg font-semibold text-slate-800 dark:text-slate-100 md:hidden">
-            DocMind AI
-          </h1>
-          <div className="hidden text-sm text-slate-500 dark:text-slate-400 md:block">
-            Inteligência Documental
+      {/* Main */}
+      <div className="main">
+        <div className="topbar">
+          <div className="crumb">
+            <span className="crumb-root">DocMind</span>
+            <Icon name="chev-r" />
+            <b>{crumbFor(location.pathname)}</b>
           </div>
+          <span className="spacer" />
+          <form
+            className="input-group search-box"
+            style={{ height: 34, maxWidth: 240 }}
+            onSubmit={submitBusca}
+          >
+            <Icon name="search" />
+            <input
+              placeholder="Buscar documentos…"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+            />
+          </form>
+          <AccentPicker />
           <ThemeToggle />
-        </header>
-        <main className="flex-1 p-6 md:p-8">
+          <NavLink to="/upload" className="btn btn-primary btn-sm">
+            <Icon name="plus" />
+            Novo
+          </NavLink>
+        </div>
+
+        <div className="content">
           <Outlet />
-        </main>
+        </div>
       </div>
     </div>
   );
