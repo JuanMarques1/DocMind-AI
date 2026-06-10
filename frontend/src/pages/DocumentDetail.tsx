@@ -5,8 +5,8 @@ import JsonViewer from "../components/JsonViewer";
 import Loader from "../components/Loader";
 import { Icon } from "../components/Icon";
 import {
-  downloadUrl,
-  fileUrl,
+  downloadAnalysis,
+  fetchFileObjectUrl,
   getDocument,
   type DocumentDetail as Detail,
 } from "../services/api";
@@ -15,6 +15,7 @@ import {
 export default function DocumentDetail() {
   const { id } = useParams<{ id: string }>();
   const [doc, setDoc] = useState<Detail | null>(null);
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -24,6 +25,21 @@ export default function DocumentDetail() {
       .then(setDoc)
       .catch(() => setErro("Documento não encontrado."))
       .finally(() => setLoading(false));
+  }, [id]);
+
+  // Carrega o arquivo original (autenticado) como object URL e revoga ao sair.
+  useEffect(() => {
+    if (!id) return;
+    let url: string | null = null;
+    fetchFileObjectUrl(Number(id))
+      .then((u) => {
+        url = u;
+        setFileUrl(u);
+      })
+      .catch(() => setFileUrl(null));
+    return () => {
+      if (url) URL.revokeObjectURL(url);
+    };
   }, [id]);
 
   if (loading) return <Loader label="Carregando documento…" />;
@@ -40,10 +56,13 @@ export default function DocumentDetail() {
           <h3 style={{ marginTop: 4 }}>{doc.filename}</h3>
         </div>
         {doc.analysis && (
-          <a href={downloadUrl(doc.id)} className="btn btn-primary btn-sm">
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => downloadAnalysis(doc.id, `analise_${doc.id}.json`)}
+          >
             <Icon name="download" />
             Baixar JSON
-          </a>
+          </button>
         )}
       </div>
 
@@ -59,7 +78,11 @@ export default function DocumentDetail() {
             <h4>Visualização</h4>
           </div>
           <div className="card-body">
-            <FilePreview url={fileUrl(doc.id)} mimeType={doc.mime_type} />
+            {fileUrl ? (
+              <FilePreview url={fileUrl} mimeType={doc.mime_type} />
+            ) : (
+              <Loader label="Carregando arquivo…" />
+            )}
           </div>
         </div>
 
