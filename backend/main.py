@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.routes import auth, documents, stats
 from config import settings
 from database.init_db import init_db
+from middleware import SecurityHeadersMiddleware
 
 
 @asynccontextmanager
@@ -34,6 +35,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.include_router(auth.router)
 app.include_router(documents.router)
