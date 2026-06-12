@@ -29,7 +29,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       tokenStore.clear();
-      if (!location.pathname.startsWith("/login")) {
+      const publicas = ["/login", "/register"];
+      if (!publicas.some((p) => location.pathname.startsWith(p))) {
         location.href = "/login";
       }
     }

@@ -22,6 +22,13 @@ def test_register_email_duplicado(client):
     assert r.status_code == 409
 
 
+def test_register_senha_curta(client):
+    r = client.post(
+        "/api/auth/register", json={"email": "c@c.com", "password": "123"}
+    )
+    assert r.status_code == 422
+
+
 def test_register_email_invalido(client):
     r = client.post(
         "/api/auth/register", json={"email": "nao-email", "password": "x"}

@@ -1,14 +1,14 @@
 """Schemas Pydantic para usuários e autenticação."""
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserCreate(BaseModel):
     """Dados de cadastro."""
 
     email: EmailStr
-    password: str
+    password: str = Field(min_length=6)
 
 
 class LoginRequest(BaseModel):

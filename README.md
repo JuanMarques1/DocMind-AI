@@ -191,6 +191,11 @@ As rotas de **documentos** e **estatísticas** exigem autenticação: envie o he
 `Authorization: Bearer <token>` obtido no login/cadastro. Cada usuário acessa
 somente os próprios documentos.
 
+> **Atualizando uma instância antiga:** a coluna `documents.user_id` é obrigatória
+> e não há migração automática (o schema é criado via `create_all`). Bancos que já
+> rodavam antes da autenticação devem ser **recriados do zero** (apague o
+> `docmind.db` local; no Render, um novo Postgres já sobe limpo).
+
 Documentação interativa (Swagger UI) disponível em `/docs`.
 
 ---
