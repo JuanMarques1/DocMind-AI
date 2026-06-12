@@ -15,6 +15,7 @@ from models.document import Document
 from models.user import User
 from schemas.document import AnalysisResult, DocumentDetail, DocumentRead
 from services.pipeline import process_document
+from services.upload_validation import conteudo_corresponde
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
@@ -59,6 +60,13 @@ async def upload_document(
     if len(conteudo) > settings.max_file_size_mb * 1024 * 1024:
         raise HTTPException(
             400, f"Arquivo excede o tamanho máximo ({settings.max_file_size_mb} MB)."
+        )
+
+    if not conteudo:
+        raise HTTPException(400, "Arquivo vazio.")
+    if not conteudo_corresponde(ext, conteudo):
+        raise HTTPException(
+            400, f"O conteúdo do arquivo não corresponde à extensão .{ext}."
         )
 
     os.makedirs(settings.upload_dir, exist_ok=True)
