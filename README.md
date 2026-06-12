@@ -253,6 +253,9 @@ SQLite em memória.
 | `OPENAI_MODEL` | `gpt-4o-mini` | Modelo usado na análise |
 | `SECRET_KEY` | _(dev inseguro)_ | Chave para assinar os tokens JWT. **Defina em produção** (32+ chars aleatórios) |
 | `HSTS_ENABLED` | `false` | Envia o header Strict-Transport-Security (ative em produção) |
+| `RATE_LIMIT_ENABLED` | `true` | Liga/desliga o rate limiting nas rotas de auth |
+| `RATE_LIMIT_LOGIN` | `5/minute` | Limite de tentativas de login por IP |
+| `RATE_LIMIT_REGISTER` | `3/minute` | Limite de cadastros por IP |
 | `DATABASE_URL` | `sqlite:///./docmind.db` | URL do banco (SQLite local · Postgres em produção) |
 | `FRONTEND_ORIGIN` | _(vazio)_ | Domínio do frontend liberado no CORS. Vazio → libera tudo |
 

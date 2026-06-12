@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     access_token_expire_days: int = 7
 
     # Rate limiting por IP nas rotas de autenticação (formato do slowapi).
+    # Os limites são lidos na inicialização; mudanças exigem restart.
     rate_limit_enabled: bool = True
     rate_limit_login: str = "5/minute"
     rate_limit_register: str = "3/minute"

@@ -57,13 +57,13 @@ async def upload_document(
         raise HTTPException(400, f"Extensão não suportada: .{ext}")
 
     conteudo = await file.read()
+    if not conteudo:
+        raise HTTPException(400, "Arquivo vazio.")
     if len(conteudo) > settings.max_file_size_mb * 1024 * 1024:
         raise HTTPException(
             400, f"Arquivo excede o tamanho máximo ({settings.max_file_size_mb} MB)."
         )
 
-    if not conteudo:
-        raise HTTPException(400, "Arquivo vazio.")
     if not conteudo_corresponde(ext, conteudo):
         raise HTTPException(
             400, f"O conteúdo do arquivo não corresponde à extensão .{ext}."
