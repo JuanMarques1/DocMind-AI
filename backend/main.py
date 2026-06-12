@@ -3,10 +3,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from api.routes import auth, documents, stats
 from config import settings
 from database.init_db import init_db
+from middleware import SecurityHeadersMiddleware
+from rate_limit import limiter
 
 
 @asynccontextmanager
@@ -17,6 +21,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="DocMind AI", version="1.0.0", lifespan=lifespan)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Em produção, defina FRONTEND_ORIGIN com o domínio da Vercel. Sem ele, libera tudo.
 if settings.frontend_origin:
@@ -34,6 +40,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.include_router(auth.router)
 app.include_router(documents.router)

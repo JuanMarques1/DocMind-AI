@@ -8,10 +8,13 @@ from sqlalchemy.pool import StaticPool
 from config import settings
 from database.session import Base, get_db
 from main import app
+from rate_limit import limiter
 
 
 @pytest.fixture()
 def client(tmp_path, monkeypatch):
+    # Rate limiting desligado por padrão (testes dedicados reativam).
+    limiter.enabled = False
     # Garante uso do analisador mock (sem chamadas externas).
     monkeypatch.setattr(settings, "openai_api_key", None)
     # Uploads em diretório temporário do teste.

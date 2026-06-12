@@ -1,10 +1,12 @@
 """Rotas de autenticação: cadastro, login e perfil."""
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from api.deps import get_current_user
+from config import settings
 from database.session import get_db
 from models.user import User
+from rate_limit import limiter
 from schemas.user import LoginRequest, Token, UserCreate, UserRead
 from services.auth import create_access_token, hash_password, verify_password
 
@@ -20,7 +22,10 @@ def _token_response(user: User) -> Token:
 
 
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
-def register(dados: UserCreate, db: Session = Depends(get_db)) -> Token:
+@limiter.limit(settings.rate_limit_register)
+def register(
+    request: Request, dados: UserCreate, db: Session = Depends(get_db)
+) -> Token:
     """Cria uma conta nova e devolve um token de acesso."""
     existente = db.query(User).filter(User.email == dados.email).first()
     if existente:
@@ -35,7 +40,10 @@ def register(dados: UserCreate, db: Session = Depends(get_db)) -> Token:
 
 
 @router.post("/login", response_model=Token)
-def login(dados: LoginRequest, db: Session = Depends(get_db)) -> Token:
+@limiter.limit(settings.rate_limit_login)
+def login(
+    request: Request, dados: LoginRequest, db: Session = Depends(get_db)
+) -> Token:
     """Valida credenciais e devolve um token de acesso."""
     user = db.query(User).filter(User.email == dados.email).first()
     if not user or not verify_password(dados.password, user.hashed_password):

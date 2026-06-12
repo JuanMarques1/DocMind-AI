@@ -75,6 +75,7 @@ em JSON estruturado.
 | | Recurso | Descrição |
 |---|---------|-----------|
 | 🔐 | **Contas de usuário** | Cadastro/login com JWT; cada usuário vê só os próprios documentos |
+| 🛡️ | **Hardening** | Rate limiting no login, validação de conteúdo dos uploads e headers de segurança |
 | 📤 | **Upload** | Drag-and-drop de PDF, PNG, JPG e JPEG (até 10 MB) |
 | 📝 | **Extração de texto** | PyMuPDF para PDFs · Tesseract OCR para imagens |
 | 🤖 | **Análise com IA** | Tipo, resumo e dados estruturados via LLM (com fallback local) |
@@ -191,6 +192,10 @@ As rotas de **documentos** e **estatísticas** exigem autenticação: envie o he
 `Authorization: Bearer <token>` obtido no login/cadastro. Cada usuário acessa
 somente os próprios documentos.
 
+> As rotas de login e cadastro têm limite de tentativas por IP (HTTP `429`
+> quando excedido). Uploads são validados por assinatura de conteúdo
+> (magic bytes), não apenas pela extensão.
+
 > **Atualizando uma instância antiga:** a coluna `documents.user_id` é obrigatória
 > e não há migração automática (o schema é criado via `create_all`). Bancos que já
 > rodavam antes da autenticação devem ser **recriados do zero** (apague o
@@ -247,6 +252,10 @@ SQLite em memória.
 | `OPENAI_API_KEY` | _(vazio)_ | Chave da OpenAI. Vazio → usa o analisador mock local |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Modelo usado na análise |
 | `SECRET_KEY` | _(dev inseguro)_ | Chave para assinar os tokens JWT. **Defina em produção** (32+ chars aleatórios) |
+| `HSTS_ENABLED` | `false` | Envia o header Strict-Transport-Security (ative em produção) |
+| `RATE_LIMIT_ENABLED` | `true` | Liga/desliga o rate limiting nas rotas de auth |
+| `RATE_LIMIT_LOGIN` | `5/minute` | Limite de tentativas de login por IP |
+| `RATE_LIMIT_REGISTER` | `3/minute` | Limite de cadastros por IP |
 | `DATABASE_URL` | `sqlite:///./docmind.db` | URL do banco (SQLite local · Postgres em produção) |
 | `FRONTEND_ORIGIN` | _(vazio)_ | Domínio do frontend liberado no CORS. Vazio → libera tudo |
 

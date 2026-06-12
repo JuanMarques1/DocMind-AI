@@ -15,6 +15,15 @@ class Settings(BaseSettings):
     secret_key: str = "dev-insecure-secret-change-me-please-32chars-min"
     access_token_expire_days: int = 7
 
+    # Rate limiting por IP nas rotas de autenticação (formato do slowapi).
+    # Os limites são lidos na inicialização; mudanças exigem restart.
+    rate_limit_enabled: bool = True
+    rate_limit_login: str = "5/minute"
+    rate_limit_register: str = "3/minute"
+
+    # Envia Strict-Transport-Security. Ative apenas em produção (HTTPS).
+    hsts_enabled: bool = False
+
     # Banco de dados (SQLite local; Postgres em produção via DATABASE_URL)
     database_url: str = "sqlite:///./docmind.db"
 
