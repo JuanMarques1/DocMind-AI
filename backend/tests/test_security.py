@@ -1,4 +1,5 @@
 """Testes das medidas de hardening: headers, upload e rate limit."""
+import pytest
 from config import settings
 
 
@@ -55,3 +56,39 @@ def test_upload_arquivo_vazio_rejeitado(auth_client):
         files={"file": ("x.pdf", b"", "application/pdf")},
     )
     assert r.status_code == 400
+
+
+@pytest.fixture()
+def rate_limited_client(client):
+    """Reativa o rate limiting (desligado por padrão nos testes) com estado limpo."""
+    from rate_limit import limiter
+
+    limiter.reset()
+    limiter.enabled = True
+    yield client
+    limiter.enabled = False
+    limiter.reset()
+
+
+def test_login_estoura_limite(rate_limited_client):
+    body = {"email": "x@x.com", "password": "errada"}
+    for _ in range(5):
+        assert (
+            rate_limited_client.post("/api/auth/login", json=body).status_code
+            == 401
+        )
+    assert rate_limited_client.post("/api/auth/login", json=body).status_code == 429
+
+
+def test_register_estoura_limite(rate_limited_client):
+    for i in range(3):
+        r = rate_limited_client.post(
+            "/api/auth/register",
+            json={"email": f"u{i}@x.com", "password": "senha123"},
+        )
+        assert r.status_code == 201
+    r = rate_limited_client.post(
+        "/api/auth/register",
+        json={"email": "u9@x.com", "password": "senha123"},
+    )
+    assert r.status_code == 429
