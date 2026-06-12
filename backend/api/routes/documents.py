@@ -8,9 +8,11 @@ from fastapi.responses import FileResponse, Response
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
+from api.deps import get_current_user
 from config import settings
 from database.session import get_db
 from models.document import Document
+from models.user import User
 from schemas.document import AnalysisResult, DocumentDetail, DocumentRead
 from services.pipeline import process_document
 
@@ -34,9 +36,19 @@ def _to_detail(doc: Document) -> DocumentDetail:
     return DocumentDetail(**base, analysis=analysis)
 
 
+def _get_owned(db: Session, doc_id: int, user: User) -> Document:
+    """Busca um documento garantindo que pertence ao usuário (senão 404)."""
+    doc = db.get(Document, doc_id)
+    if not doc or doc.user_id != user.id:
+        raise HTTPException(404, "Documento não encontrado.")
+    return doc
+
+
 @router.post("", response_model=DocumentDetail)
 async def upload_document(
-    file: UploadFile = File(...), db: Session = Depends(get_db)
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
 ) -> DocumentDetail:
     """Recebe um arquivo, salva, processa e retorna o resultado."""
     ext = (file.filename or "").rsplit(".", 1)[-1].lower()
@@ -60,6 +72,7 @@ async def upload_document(
         file_path=caminho,
         mime_type=_MIME[ext],
         status="processing",
+        user_id=user.id,
     )
     db.add(doc)
     db.commit()
@@ -70,25 +83,38 @@ async def upload_document(
 
 
 @router.get("", response_model=list[DocumentRead])
-def listar_documentos(db: Session = Depends(get_db)) -> list[Document]:
-    """Lista todos os documentos, do mais recente para o mais antigo."""
-    return db.query(Document).order_by(desc(Document.created_at)).all()
+def listar_documentos(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> list[Document]:
+    """Lista os documentos do usuário, do mais recente para o mais antigo."""
+    return (
+        db.query(Document)
+        .filter(Document.user_id == user.id)
+        .order_by(desc(Document.created_at))
+        .all()
+    )
 
 
 @router.get("/{doc_id}", response_model=DocumentDetail)
-def detalhe_documento(doc_id: int, db: Session = Depends(get_db)) -> DocumentDetail:
-    """Retorna os detalhes completos de um documento."""
-    doc = db.get(Document, doc_id)
-    if not doc:
-        raise HTTPException(404, "Documento não encontrado.")
-    return _to_detail(doc)
+def detalhe_documento(
+    doc_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> DocumentDetail:
+    """Retorna os detalhes completos de um documento do usuário."""
+    return _to_detail(_get_owned(db, doc_id, user))
 
 
 @router.get("/{doc_id}/download")
-def download_resultado(doc_id: int, db: Session = Depends(get_db)) -> Response:
+def download_resultado(
+    doc_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> Response:
     """Baixa o resultado da análise como arquivo JSON."""
-    doc = db.get(Document, doc_id)
-    if not doc or not doc.analysis_json:
+    doc = _get_owned(db, doc_id, user)
+    if not doc.analysis_json:
         raise HTTPException(404, "Análise não encontrada.")
     return Response(
         content=doc.analysis_json,
@@ -100,9 +126,13 @@ def download_resultado(doc_id: int, db: Session = Depends(get_db)) -> Response:
 
 
 @router.get("/{doc_id}/file")
-def arquivo_original(doc_id: int, db: Session = Depends(get_db)) -> FileResponse:
+def arquivo_original(
+    doc_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> FileResponse:
     """Serve o arquivo original (para o visualizador no frontend)."""
-    doc = db.get(Document, doc_id)
-    if not doc or not os.path.exists(doc.file_path):
+    doc = _get_owned(db, doc_id, user)
+    if not os.path.exists(doc.file_path):
         raise HTTPException(404, "Arquivo não encontrado.")
     return FileResponse(doc.file_path, media_type=doc.mime_type, filename=doc.filename)

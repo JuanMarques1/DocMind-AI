@@ -29,3 +29,6 @@ services:
       # Domínio da Vercel (ex.: https://docmind.vercel.app). Defina após o deploy do front.
       - key: FRONTEND_ORIGIN
         sync: false
+      # Chave para assinar tokens JWT (gerada e mantida pelo Render).
+      - key: SECRET_KEY
+        generateValue: true

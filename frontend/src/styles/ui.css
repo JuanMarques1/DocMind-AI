@@ -442,6 +442,21 @@ h1.display {
   font-size: var(--text-sm); color: var(--accent-fg); text-decoration: none;
   font-weight: var(--weight-medium); display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
 }
+
+/* Telas de autenticação */
+.auth-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+}
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  padding: var(--space-6);
+  display: grid;
+  gap: var(--space-4);
+}
 .link:hover { text-decoration: underline; }
 
 /* error / inline alert */
