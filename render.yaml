@@ -32,3 +32,6 @@ services:
       # Chave para assinar tokens JWT (gerada e mantida pelo Render).
       - key: SECRET_KEY
         generateValue: true
+      # Produção roda em HTTPS: envia o header HSTS.
+      - key: HSTS_ENABLED
+        value: "true"
