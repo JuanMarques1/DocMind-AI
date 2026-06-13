@@ -24,19 +24,24 @@ app = FastAPI(title="DocMind AI", version="1.0.0", lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Em produção, defina FRONTEND_ORIGIN com o domínio da Vercel. Sem ele, libera tudo.
-if settings.frontend_origin:
-    _origins = [
-        settings.frontend_origin,
-        "http://localhost:5173",
-        "http://localhost:3000",
-    ]
-else:
-    _origins = ["*"]
+# Origens liberadas no CORS. FRONTEND_ORIGIN traz o(s) domínio(s) de produção
+# (aceita lista separada por vírgula); normalizamos barra/espaço acidentais para
+# evitar mismatch. A regex cobre os deploys do projeto na Vercel — produção e as
+# URLs de preview, que têm sufixos variáveis.
+def _origens_permitidas() -> list[str]:
+    origens = ["http://localhost:5173", "http://localhost:3000"]
+    if settings.frontend_origin:
+        for origem in settings.frontend_origin.split(","):
+            origem = origem.strip().rstrip("/")
+            if origem:
+                origens.append(origem)
+    return origens
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_origins,
+    allow_origins=_origens_permitidas(),
+    allow_origin_regex=r"https://doc-mind-ai.*\.vercel\.app",
     allow_methods=["*"],
     allow_headers=["*"],
 )
