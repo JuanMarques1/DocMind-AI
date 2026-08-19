@@ -21,17 +21,17 @@ services:
         fromDatabase:
           name: docmind-db
           property: connectionString
-      # Defina no painel do Render (secreto). Vazio → usa o analisador mock.
+      
       - key: OPENAI_API_KEY
         sync: false
       - key: OPENAI_MODEL
         value: gpt-4o-mini
-      # Domínio da Vercel (ex.: https://docmind.vercel.app). Defina após o deploy do front.
+      
       - key: FRONTEND_ORIGIN
         sync: false
-      # Chave para assinar tokens JWT (gerada e mantida pelo Render).
+    
       - key: SECRET_KEY
         generateValue: true
-      # Produção roda em HTTPS: envia o header HSTS.
+      
       - key: HSTS_ENABLED
         value: "true"
